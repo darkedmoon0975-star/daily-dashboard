@@ -3,369 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Task Dashboard</title>
+    <title>For My Love ❤️</title>
     <style>
         :root {
-            --bg-primary: #f4f7f6;
-            --surface: #ffffff;
-            --text-main: #2d3748;
-            --text-muted: #718096;
-            --accent: #4f46e5;
-            --accent-hover: #4338ca;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --high-priority: #ef4444;
-            --med-priority: #f59e0b;
-            --low-priority: #3b82f6;
+            --primary-pink: #ff7597;
+            --dark-pink: #e65c80;
+            --soft-bg: #fff0f3;
+            --white: #ffffff;
+            --text-color: #4a2831;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Georgia', serif;
         }
 
         body {
-            background-color: var(--bg-primary);
-            color: var(--text-main);
+            background-color: var(--soft-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 2rem 1rem;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+        /* --- Floating Hearts Animation --- */
+        .hearts-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
 
         /* --- Header Section --- */
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            background: var(--surface);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            margin-bottom: 3rem;
+            z-index: 1;
         }
 
         h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            color: var(--dark-pink);
+            margin-bottom: 0.5rem;
+            animation: pulse 2s infinite ease-in-out;
         }
 
-        .date-display {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-top: 0.25rem;
-        }
-
-        /* --- Progress Card --- */
-        .progress-card {
-            background: var(--surface);
-            padding: 1.25rem;
-            border-radius: 10px;
-            text-align: right;
-            border-left: 4px solid var(--accent);
-        }
-
-        .progress-text {
-            font-weight: 600;
+        p.subtitle {
+            font-style: italic;
             font-size: 1.1rem;
+            color: #8a5a65;
+        }
+
+        /* --- Folder Grid Layout --- */
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 900px;
+            z-index: 1;
+        }
+
+        .folder-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(230, 92, 128, 0.15);
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+            border: 1px solid rgba(255, 117, 151, 0.2);
+        }
+
+        .folder-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(230, 92, 128, 0.25);
+            background: #fffcfd;
+        }
+
+        .folder-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .folder-card:hover .folder-icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .folder-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--dark-pink);
             margin-bottom: 0.5rem;
         }
 
-        .progress-bar-container {
-            width: 150px;
-            height: 8px;
-            background: var(--border);
-            border-radius: 4px;
-            overflow: hidden;
-            display: inline-block;
+        .folder-desc {
+            font-size: 0.9rem;
+            color: #8a5a65;
+            line-height: 1.4;
         }
 
-        .progress-bar {
-            width: 0%;
+        /* --- Popup Modal Window --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            background: var(--success);
-            transition: width 0.3s ease;
-        }
-
-        /* --- Task Form Control --- */
-        .task-form {
-            background: var(--surface);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
+            background: rgba(74, 40, 49, 0.5);
+            backdrop-filter: blur(4px);
             display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .task-input {
-            flex: 1;
-            min-width: 200px;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .task-input:focus {
-            border-color: var(--accent);
-        }
-
-        .priority-select {
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--surface);
-            font-size: 1rem;
-            cursor: pointer;
-            outline: none;
-        }
-
-        .btn-add {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-add:hover {
-            background: var(--accent-hover);
-        }
-
-        /* --- Task List Container --- */
-        .task-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .task-item {
-            background: var(--surface);
-            padding: 1rem 1.2rem;
-            border-radius: 10px;
-            border-left: 5px solid var(--border);
-            display: flex;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-            transition: transform 0.2s, opacity 0.2s;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
         }
 
-        .task-item.completed {
-            opacity: 0.6;
-            border-left-color: var(--success) !important;
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
         }
 
-        .task-item.completed .task-text {
-            text-decoration: line-through;
-            color: var(--text-muted);
+        .modal-box {
+            background: var(--white);
+            width: 90%;
+            max-width: 500px;
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            position: relative;
+            transform: scale(0.7);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            border: 3px double var(--primary-pink);
         }
 
-        /* Priority Colors dynamically mapped */
-        .task-item.high { border-left-color: var(--high-priority); }
-        .task-item.medium { border-left-color: var(--med-priority); }
-        .task-item.low { border-left-color: var(--low-priority); }
-
-        .task-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex: 1;
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
         }
 
-        .task-checkbox {
-            width: 1.2rem;
-            height: 1.2rem;
-            cursor: pointer;
-            accent-color: var(--success);
-        }
-
-        .task-text {
-            font-size: 1.05rem;
-            word-break: break-word;
-        }
-
-        .badge {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .badge.high { background: #fee2e2; color: var(--high-priority); }
-        .badge.medium { background: #fef3c7; color: var(--med-priority); }
-        .badge.low { background: #dbeafe; color: var(--low-priority); }
-
-        .btn-delete {
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1.2rem;
+            font-size: 1.5rem;
             background: none;
             border: none;
-            color: #ef4444;
+            color: #b38f97;
             cursor: pointer;
-            font-size: 1.2rem;
-            padding: 0.25rem;
-            border-radius: 4px;
-            margin-left: 1rem;
-            transition: background 0.2s;
+            transition: color 0.2s;
         }
 
-        .btn-delete:hover {
-            background: #fee2e2;
+        .close-btn:hover {
+            color: var(--dark-pink);
         }
 
-        .empty-state {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 3rem 1rem;
+        .modal-emoji {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.6rem;
+            color: var(--dark-pink);
+            margin-bottom: 1rem;
+        }
+
+        .modal-message {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            white-space: pre-line; /* Keeps line breaks from your text */
+        }
+
+        .love-quote {
+            font-size: 0.9rem;
             font-style: italic;
+            color: #a3727e;
+            border-top: 1px dashed var(--primary-pink);
+            padding-top: 1rem;
+        }
+
+        /* --- Animations --- */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        .floating-heart {
+            position: absolute;
+            color: var(--primary-pink);
+            font-size: 1.5rem;
+            animation: floatUp 6s linear infinite;
+            bottom: -50px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Dashboard Header -->
-        <header>
-            <div>
-                <h1>Daily Dashboard</h1>
-                <div class="date-display" id="currentDate">Thursday, June 11, 2026</div>
-            </div>
-            <div class="progress-card">
-                <div class="progress-text">Progress: <span id="progressStats">0/0</span></div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-            </div>
-        </header>
+    <div class="hearts-bg" id="heartsBg"></div>
 
-        <!-- Task Creator Form -->
-        <form class="task-form" id="taskForm" onsubmit="addTask(event)">
-            <input type="text" id="taskInput" class="task-input" placeholder="What needs to be done today?" required autocomplete="off">
-            <select id="priorityInput" class="priority-select">
-                <option value="low">Low Priority</option>
-                <option value="medium" selected>Medium Priority</option>
-                <option value="high">High Priority</option>
-            </select>
-            <button type="submit" class="btn-add">Add Task</button>
-        </form>
+    <header>
+        <h1>For My Favorite Person ❤️</h1>
+        <p class="subtitle">I made a little space just for you. Click on the envelopes below...</p>
+    </header>
 
-        <!-- Main Task List Container -->
-        <ul class="task-list" id="taskList">
-            <!-- Tasks will get injected here dynamically via JavaScript -->
-        </ul>
-        <div id="emptyState" class="empty-state" style="display: none;"> No tasks added for today yet. Rest easy or add one above! </div>
+    <div class="folder-grid">
+        
+        <div class="folder-card" onclick="openMessage(1)">
+            <div class="folder-icon">✉️</div>
+            <div class="folder-title">Read Me First</div>
+            <div class="folder-desc">Just a little reminder about how much you mean to me.</div>
+        </div>
+
+        <div class="folder-card" onclick="openMessage(2)">
+            <div class="folder-icon">☕</div>
+            <div class="folder-title">On Rough Days</div>
+            <div class="folder-desc">Open this whenever you are feeling stressed or tired.</div>
+        </div>
+
+        <div class="folder-card" onclick="openMessage(3)">
+            <div class="folder-icon">🌟</div>
+            <div class="folder-title">Why I Love You</div>
+            <div class="folder-desc">A few of the million little reasons you make my world bright.</div>
+        </div>
+
+        <div class="folder-card" onclick="openMessage(4)">
+            <div class="folder-icon">🔮</div>
+            <div class="folder-title">Our Future</div>
+            <div class="folder-desc">My thoughts on everything that lies ahead for us.</div>
+        </div>
+
     </div>
 
-    <!-- Interactive System Logic -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeMessage(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeMessage(force=true)">✕</button>
+            <div class="modal-emoji" id="modalEmoji">✉️</div>
+            <div class="modal-title" id="modalTitle">Folder Title</div>
+            <p class="modal-message" id="modalMessage">Custom Message goes here.</p>
+            <div class="love-quote" id="modalQuote">"Love quotes sit beautifully down here."</div>
+        </div>
+    </div>
+
     <script>
-        // Set dynamic modern date format
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-US', options);
-
-        // Initialize array from LocalStorage if it exists, otherwise empty array
-        let tasks = JSON.parse(localStorage.getItem('dashboard_tasks')) || [];
-
-        // Save & Refresh View Hook
-        function updateDashboard() {
-            localStorage.setItem('dashboard_tasks', JSON.stringify(tasks));
-            renderTasks();
-        }
-
-        // Add a Task handler
-        function addTask(e) {
-            e.preventDefault();
-            const textInput = document.getElementById('taskInput');
-            const priorityInput = document.getElementById('priorityInput');
-
-            const newTask = {
-                id: Date.now(),
-                text: textInput.value.trim(),
-                priority: priorityInput.value,
-                completed: false
-            };
-
-            tasks.push(newTask);
-            textInput.value = ''; // Reset text input
-            updateDashboard();
-        }
-
-        // Toggle task completion status
-        function toggleTask(id) {
-            tasks = tasks.map(task => {
-                if (task.id === id) {
-                    return { ...task, completed: !task.completed };
-                }
-                return task;
-            });
-            updateDashboard();
-        }
-
-        // Delete a task handler
-        function deleteTask(id) {
-            tasks = tasks.filter(task => task.id !== id);
-            updateDashboard();
-        }
-
-        // Render data dynamically into HTML layout
-        function renderTasks() {
-            const listElement = document.getElementById('taskList');
-            const emptyState = document.getElementById('emptyState');
-            
-            // Clear existing layout list to handle full refresh re-render
-            listElement.innerHTML = '';
-
-            if (tasks.length === 0) {
-                emptyState.style.display = 'block';
-            } else {
-                emptyState.style.display = 'none';
-                
-                // Sort array so that uncompleted high-priority items stick closer to top
-                const sortedTasks = [...tasks].sort((a, b) => {
-                    if (a.completed !== b.completed) return a.completed - b.completed;
-                    const priorityWeight = { high: 3, medium: 2, low: 1 };
-                    return priorityWeight[b.priority] - priorityWeight[a.priority];
-                });
-
-                sortedTasks.forEach(task => {
-                    const li = document.createElement('li');
-                    li.className = `task-item ${task.priority} ${task.completed ? 'completed' : ''}`;
-                    
-                    li.innerHTML = `
-                        <div class="task-left">
-                            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
-                            <span class="task-text">${task.text}</span>
-                            <span class="badge ${task.priority}">${task.priority}</span>
-                        </div>
-                        <button class="btn-delete" onclick="deleteTask(${task.id})" title="Delete Task">✕</button>
-                    `;
-                    listElement.appendChild(li);
-                });
+        // --- DATA OBJECT: Customize your secret messages here! ---
+        const folderData = {
+            1: {
+                title: "Hey beautiful...",
+                emoji: "💖",
+                message: "I wanted to build something unique to show you how much I care. You're the best part of my daily routine, the laugh I look forward to, and my safe space. Thank you for just being you.",
+                quote: "“In case you ever foolishly forget: I am never not thinking of you.” — Virginia Woolf"
+            },
+            2: {
+                title: "Take a deep breath.",
+                emoji: "💆‍♀️",
+                message: "If today was hard, please remember that you don't have to carry the whole world on your shoulders. You are incredibly strong, capable, and smart. Drop your shoulders, relax your jaw, and remember I am always in your corner cheering you on.",
+                quote: "“You are braver than you believe, stronger than you seem, and smarter than you think.” — A.A. Milne"
+            },
+            3: {
+                title: "A Few Reasons Why...",
+                emoji: "📜",
+                message: "1. The way your eyes completely light up when you're happy.\n2. How safe I feel when I'm talking to you.\n3. Your beautiful mind and kind heart.\n4. You make even the most boring days feel like an adventure.",
+                quote: "“I love you because the entire universe conspired to help me find you.” — Paulo Coelho"
+            },
+            4: {
+                title: "To our tomorrows ✨",
+                emoji: "maple",
+                emoji: "🚀",
+                message: "No matter where life takes us, I want to experience it alongside you. More morning coffees, more late-night inside jokes, more roadtrips, and more quiet moments. Building a future with you is my absolute favorite plan.",
+                quote: "“Grow old along with me! The best is yet to be.” — Robert Browning"
             }
+        };
 
-            // Update Progress Analytics 
-            const completedCount = tasks.filter(t => t.completed).length;
-            const totalCount = tasks.length;
-            document.getElementById('progressStats').innerText = `${completedCount}/${totalCount}`;
-            
-            const percentage = totalCount === 0 ? 0 : (completedCount / totalCount) * 100;
-            document.getElementById('progressBar').style.width = `${percentage}%`;
+        // --- MODAL TRIGGER INTERACTION SYSTEM ---
+        const overlay = document.getElementById('modalOverlay');
+        
+        function openMessage(folderId) {
+            const data = folderData[folderId];
+            if (!data) return;
+
+            document.getElementById('modalTitle').innerText = data.title;
+            document.getElementById('modalEmoji').innerText = data.emoji;
+            document.getElementById('modalMessage').innerText = data.message;
+            document.getElementById('modalQuote').innerText = data.quote;
+
+            overlay.classList.add('active');
         }
 
-        // Primary application paint launch trigger
-        renderTasks();
+        function closeMessage(event, force = false) {
+            overlay.classList.remove('active');
+        }
+
+        // --- AMBIENT FLOATING HEARTS GENERATOR ---
+        function createFloatingHeart() {
+            const container = document.getElementById('heartsBg');
+            const heart = document.createElement('div');
+            heart.classList.add('floating-heart');
+            heart.innerText = ['❤️', '💖', '✨', '🌸'][Math.floor(Math.random() * 4)];
+            
+            // Random positioning and timings
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 3 + 4) + 's'; // 4 to 7 seconds
+            heart.style.fontSize = (Math.random() * 1 + 1) + 'rem';
+            
+            container.appendChild(heart);
+
+            // Clean up elements out of DOM after animation stops
+            setTimeout(() => {
+                heart.remove();
+            }, 7000);
+        }
+
+        // Generate a new floating symbol every 800 milliseconds
+        setInterval(createFloatingHeart, 800);
     </script>
 </body>
 </html>
